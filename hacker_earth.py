@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+import re
+from datetime import timedelta
 
 
 def myextractor(r_path, base_url):
@@ -17,6 +19,15 @@ def myextractor(r_path, base_url):
         else:
             continue
 
+        # event type
+        event_type_tag = event.find(
+            "div", class_="challenge-type light smaller caps weight-600"
+        )
+        if event_type_tag:
+            event_type = event_type_tag.text.strip()
+        else:
+            event_type = "Unknown Type"
+
         # event link
         event_link_tag = event.find(
             "a", class_="challenge-card-wrapper challenge-card-link", href=True
@@ -27,7 +38,30 @@ def myextractor(r_path, base_url):
         else:
             event_link = "No Link"
 
-        events_data.append([event_name, event_link])
+        # extract the seconds_left value from <script>
+        script_tag = event.find_next("script", type="text/javascript")
+        seconds_left = 0
+        if script_tag and script_tag.string:
+            script_content = script_tag.string
+            match = re.search(
+                r"var\s+seconds_left\s*=\s*(\d+)\s*-\s*(\d+);", script_content
+            )
+            if match:
+                event_end_time = int(match.group(1))
+                current_time = int(match.group(2))
+                seconds_left = event_end_time - current_time
+
+        if seconds_left:
+            remaining_time = str(timedelta(seconds=seconds_left))
+        else:
+            start_time_tag = event.find("div", class_="date less-margin dark")
+            if start_time_tag:
+                start_time = start_time_tag.text.strip()
+                remaining_time = f"Starts on: {start_time}"
+            else:
+                remaining_time = "No Time Info"
+
+        events_data.append([event_name, event_type, event_link, remaining_time])
 
     return events_data
 
@@ -38,4 +72,19 @@ mydat = myextractor("data.html", base_url)
 # for i in mydat:
 #     print(i[0])
 #     print(i[1])
+#     print(i[2])
+#     print(i[3])
 #     print()
+
+"""
+data format-> nested lists of strings
+Analog Kairos Hackathon - 2
+HACKATHON
+https://analog-part2.hackerearth.com/
+31 days, 16:37:37
+
+Global Scholar Challenge
+COMPETITIVE
+https://www.hackerearth.com/challenges/competitive/global-scholar-challenge/
+Starts on: Dec 20, 12:30 PM UTC (UTC)
+"""
