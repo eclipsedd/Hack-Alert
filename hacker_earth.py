@@ -3,7 +3,7 @@ import re
 from datetime import timedelta
 
 
-def myextractor(r_path, base_url):
+def hacker_earth_extractor(r_path, base_url):
     with open(r_path, "r") as f:
         dat = f.read()
         soup = BeautifulSoup(dat, "html.parser")
@@ -63,11 +63,14 @@ def myextractor(r_path, base_url):
 
         events_data.append([event_name, event_type, event_link, remaining_time])
 
+        if len(events_data) == 10:
+            break
+
     return events_data
 
 
-base_url = "https://www.hackerearth.com"
-mydat = myextractor("data.html", base_url)
+# base_url = "https://www.hackerearth.com"
+# mydat = hacker_earth_extractor("data.html", base_url)
 
 # for i in mydat:
 #     print(i[0])

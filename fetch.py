@@ -7,7 +7,7 @@ def loader(url, path):
         f.write(r.text)
 
 
-url = "https://www.hackerearth.com/challenges/?filters=competitive%2Chackathon%2Cuniversity"
-path = "data.html"
+# url = "https://www.hackerearth.com/challenges/?filters=competitive%2Chackathon%2Cuniversity"
+# path = "data.html"
 
-loader(url, path)
+# loader(url, path)
