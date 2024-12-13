@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 from fetch import loader
 from hacker_earth import hacker_earth_extractor
 from hack2skill import hack2skill_extractor
+import schedule
+import time
+import json
 
 
 load_dotenv()
@@ -19,7 +22,18 @@ hackathon_sites = {
     "hack2skill": "https://hack2skill.com/#ongoin-initiatives",
 }
 
-last_sent_event = "Certified Hedera Developer"
+STATE_FILE = "last_sent_event.json"
+
+if os.path.exists(STATE_FILE):
+    with open(STATE_FILE, "r") as f:
+        last_sent_event = json.load(f)
+else:
+    last_sent_event = [" "] * len(hackathon_sites)
+
+
+def save_last_sent_event():
+    with open(STATE_FILE, "w") as f:
+        json.dump(last_sent_event, f)
 
 
 def save_html():
@@ -56,32 +70,35 @@ def hack2skill_scraper():
     return mydat
 
 
-if __name__ == "__main__":
-    # save_html()
-
-    # events = hacker_earth_scraper()
-    # # print(events)
-
-    # start_index = len(events)
-    # for i in range(len(events) - 1, -1, -1):
-    #     if events[i][0] == last_sent_event:
-    #         start_index = i
-    #         break
-
-    # for i in range(0, start_index, 1):
-    #     send_message(events[i])
-    #     last_sent_event = events[i][0]
-
-    # for hack2skill
-    events = hack2skill_scraper()
-    # print(events)
-
+def myfunc(events, index):
     start_index = len(events)
     for i in range(len(events) - 1, -1, -1):
-        if events[i][0] == last_sent_event:
+        if events[i][0] == last_sent_event[index]:
             start_index = i
             break
 
-    for i in range(0, start_index, 1):
+    for i in range(start_index - 1, -1, -1):
         send_message(events[i])
-        last_sent_event = events[i][0]
+        last_sent_event[index] = events[i][0]
+
+    save_last_sent_event()
+
+
+def main():
+    save_html()
+
+    events = hacker_earth_scraper()
+    myfunc(events, 0)
+
+    events = hack2skill_scraper()
+    myfunc(events, 1)
+    print("executed")
+
+
+schedule.every(30).minutes.do(main)
+
+if __name__ == "__main__":
+    main()
+    while True:
+        schedule.run_pending()
+        time.sleep(1)

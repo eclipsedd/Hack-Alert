@@ -33,7 +33,7 @@ def hack2skill_extractor(r_path, base_url):
         except ValueError:
             continue
 
-        event.append(last_date[-15:])
+        event.append("Due date: " + last_date[-15:])
 
         mode_text = block.find("p", class_="hack-type").get_text(strip=True)
         mmode = str(mode_text).split(":")
