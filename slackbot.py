@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from fetch import loader
 from hacker_earth import hacker_earth_extractor
 from hack2skill import hack2skill_extractor
+from devpost import devpost_extractor
+from datetime import datetime
 import schedule
 import time
 import json
@@ -23,6 +25,7 @@ hackathon_sites = {
 }
 
 STATE_FILE = "last_sent_event.json"
+DEVPOST_TRACKING_FILE = "devpost_sent.json"
 
 if os.path.exists(STATE_FILE):
     with open(STATE_FILE, "r") as f:
@@ -34,6 +37,19 @@ else:
 def save_last_sent_event():
     with open(STATE_FILE, "w") as f:
         json.dump(last_sent_event, f)
+
+
+def load_devpost():
+    try:
+        with open(DEVPOST_TRACKING_FILE, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}
+
+
+def save_devpost(tracked_events):
+    with open(DEVPOST_TRACKING_FILE, "w") as file:
+        json.dump(tracked_events, file, indent=4)
 
 
 def save_html():
@@ -84,6 +100,39 @@ def myfunc(events, index):
     save_last_sent_event()
 
 
+def devpost_send():
+    events = devpost_extractor()
+    tracked_events = load_devpost()
+
+    new_events = []
+    for event in events:
+        title, duration = event[0], event[5][7:]
+        if title in tracked_events and tracked_events[title] == duration:
+            continue
+        new_events.append(event)
+
+    for i in new_events:
+        send_message(i)
+
+    # Removing outdated events
+    updated_tracked_events = {
+        title: duration
+        for title, duration in tracked_events.items()
+        if not datetime.now()
+        > datetime.strptime(
+            (
+                duration.split(" - ")[1]
+                if len(duration.split(" - ")[1]) > 11
+                else duration.split(" - ")[0][:4] + duration.split(" - ")[1]
+            ),
+            "%b %d, %Y",
+        )
+    }
+    for i in new_events:
+        updated_tracked_events[i[0]] = i[5][7:]
+    save_devpost(updated_tracked_events)
+
+
 def main():
     save_html()
 
@@ -92,6 +141,8 @@ def main():
 
     events = hack2skill_scraper()
     myfunc(events, 1)
+
+    devpost_send()
     print("executed")
 
 

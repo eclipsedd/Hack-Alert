@@ -3,3 +3,4 @@ venv
 data
 __pycache__
 last_sent_event.json
+devpost_sent.json
