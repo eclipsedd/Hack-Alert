@@ -1,7 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from datetime import datetime, timedelta
 import time
+
+current_date = datetime.now()
 
 
 def devpost_extractor():
@@ -61,10 +64,21 @@ def devpost_extractor():
                     + elem.find_element(By.CSS_SELECTOR, "span.host-label").text
                 )
 
-                duration = (
-                    "dates: "
-                    + elem.find_element(By.CSS_SELECTOR, "div.submission-period").text
-                )
+                duration = elem.find_element(
+                    By.CSS_SELECTOR, "div.submission-period"
+                ).text
+
+                parts = duration.split(" - ")
+                start_date_str = ""
+                if len(parts[0]) < 8:
+                    start_date_str = parts[0] + ", 202" + parts[1][-1]
+                else:
+                    start_date_str = parts[0]
+
+                start_date = datetime.strptime(start_date_str, "%b %d, %Y")
+
+                if start_date > current_date + timedelta(weeks=2):
+                    continue
 
                 themes = elem.find_elements(By.CSS_SELECTOR, "span.theme-label")
                 theme = ""
@@ -78,7 +92,7 @@ def devpost_extractor():
                     status,
                     theme,
                     host_name,
-                    duration,
+                    "dates: " + duration,
                     link,
                 ]
                 events.append(event)
