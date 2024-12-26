@@ -7,6 +7,7 @@ from hacker_earth import hacker_earth_extractor
 from hack2skill import hack2skill_extractor
 from devpost import devpost_extractor
 from devfolio import devfolio_extractor
+from dorahacks import dorahacks_extractor
 from datetime import datetime
 import schedule
 import time
@@ -32,7 +33,7 @@ if os.path.exists(STATE_FILE):
     with open(STATE_FILE, "r") as f:
         last_sent_event = json.load(f)
 else:
-    last_sent_event = [""] * 3
+    last_sent_event = [""] * 4
 
 
 def save_last_sent_event():
@@ -147,6 +148,10 @@ def main():
 
     events = devfolio_extractor()
     myfunc(events, 2)
+
+    events = dorahacks_extractor()
+    myfunc(events, 3)
+
     print("executed")
 
 
