@@ -155,7 +155,7 @@ def main():
     print("executed")
 
 
-schedule.every(30).minutes.do(main)
+schedule.every(60).minutes.do(main)
 
 if __name__ == "__main__":
     main()
