@@ -4,3 +4,4 @@ bs4
 requests
 schedule==1.2.2
 selenium==4.27.1
+webdriver-manager

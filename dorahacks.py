@@ -1,7 +1,12 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-import time
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import platform
+import os
 
 
 def dorahacks_extractor():
@@ -11,24 +16,50 @@ def dorahacks_extractor():
     options.add_argument("--no-sandbox")
     options.add_argument("--headless")
     options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=options)
+    options.add_argument(
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    )
+
+    if platform.system() == "Windows":
+        service = Service(ChromeDriverManager().install())
+    else:
+        # linux env
+        options.binary_location = os.getenv(
+            "CHROME_BINARY_LOCATION", "/opt/google/chrome/chrome"
+        )
+        service = Service(
+            executable_path=os.getenv("CHROMEDRIVER_PATH", "/usr/bin/chromedriver")
+        )
+
+    driver = webdriver.Chrome(service=service, options=options)
 
     try:
         driver.get("https://dorahacks.io/hackathon")
         driver.maximize_window()
 
-        time.sleep(10)
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located(
+                (By.XPATH, "//ul[contains(@class, 'hackathon-list')]")
+            )
+        )
+
         driver.execute_script("window.scrollBy(0, 400);")
 
-        sort_button = driver.find_element(By.XPATH, "//button[span[text()='Sort']]")
+        sort_button = WebDriverWait(driver, 30).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[span[text()='Sort']]"))
+        )
         sort_button.click()
 
-        time.sleep(1)
-
-        recently_added = driver.find_element(By.XPATH, "//div[text()='Recently Added']")
+        recently_added = WebDriverWait(driver, 30).until(
+            EC.element_to_be_clickable((By.XPATH, "//div[text()='Recently Added']"))
+        )
         recently_added.click()
 
-        time.sleep(5)
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_all_elements_located(
+                (By.XPATH, "//ul[contains(@class, 'hackathon-list')]/li")
+            )
+        )
 
         hackathon_data = []
 
@@ -84,7 +115,7 @@ def dorahacks_extractor():
                 )
 
             except Exception as e:
-                print(f"Error extracting data for a card: {e}")
+                # print(f"Error extracting data for a card: {e}")
                 continue
 
         return hackathon_data
