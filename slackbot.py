@@ -117,19 +117,22 @@ def devpost_send():
         send_message(i)
 
     # Removing outdated events
-    updated_tracked_events = {
-        title: duration
-        for title, duration in tracked_events.items()
-        if not datetime.now()
-        > datetime.strptime(
-            (
-                duration.split(" - ")[1]
-                if len(duration.split(" - ")[1]) > 11
-                else duration.split(" - ")[0][:4] + duration.split(" - ")[1]
-            ),
-            "%b %d, %Y",
-        )
-    }
+    updated_tracked_events = {}
+    for title, duration in tracked_events.items():
+        try:
+            if " - " in duration:
+                end_date_str = duration.split(" - ")[1]
+            else:
+                end_date_str = duration
+            if len(end_date_str) < 11:
+                end_date_str = duration.split(" - ")[0][:4] + end_date_str
+
+            end_date = datetime.strptime(end_date_str, "%b %d, %Y")
+            if datetime.now() <= end_date:
+                updated_tracked_events[title] = duration
+        except Exception:
+            continue
+
     for i in new_events:
         updated_tracked_events[i[0]] = i[5][7:]
     save_devpost(updated_tracked_events)
