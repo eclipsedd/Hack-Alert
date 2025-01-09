@@ -8,7 +8,7 @@ from hack2skill import hack2skill_extractor
 from devpost import devpost_extractor
 from devfolio import devfolio_extractor
 from dorahacks import dorahacks_extractor
-from datetime import datetime
+from datetime import datetime, timedelta
 import schedule
 import time
 import json
@@ -116,7 +116,7 @@ def devpost_send():
     for i in new_events:
         send_message(i)
 
-    # Removing outdated events
+    # Removing outdated events, which expired more than a week ago
     updated_tracked_events = {}
     for title, duration in tracked_events.items():
         try:
@@ -128,7 +128,7 @@ def devpost_send():
                 end_date_str = duration.split(" - ")[0][:4] + end_date_str
 
             end_date = datetime.strptime(end_date_str, "%b %d, %Y")
-            if datetime.now() <= end_date:
+            if datetime.now() <= end_date + timedelta(weeks=1):
                 updated_tracked_events[title] = duration
         except Exception:
             continue
