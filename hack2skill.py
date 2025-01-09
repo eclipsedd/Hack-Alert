@@ -20,12 +20,10 @@ def hack2skill_extractor(r_path, base_url):
         description = block.find("p", class_="hack-description").get_text(strip=True)
         event.append(description)
 
-        last_date = (
-            block.find("p", class_="last-date")
-            .get_text(strip=True)
-            .replace("Last date to register:", "")
-            .strip()
-        )
+        last_date = block.find("p", class_="last-date").get_text(strip=True)
+        dat_name = last_date.split(":")[0]
+        last_date = last_date[-15:]
+
         try:
             last_date_obj = datetime.strptime(last_date, "%a %b %d %Y")
             if last_date_obj < datetime.now():
@@ -33,8 +31,7 @@ def hack2skill_extractor(r_path, base_url):
         except ValueError:
             continue
 
-        event.append("Due date: " + last_date[-15:])
-
+        event.append("*" + dat_name + ":* " + last_date)
         mode_text = block.find("p", class_="hack-type").get_text(strip=True)
         mmode = str(mode_text).split(":")
         event.append(mmode[1])
