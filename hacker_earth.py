@@ -61,7 +61,14 @@ def hacker_earth_extractor(r_path, base_url):
             else:
                 remaining_time = "No Time Info"
 
-        events_data.append([event_name, event_type, event_link, remaining_time])
+        events_data.append(
+            [
+                "*" + event_name + "*",
+                "*Category:* " + event_type,
+                "*Time left:* " + remaining_time,
+                event_link,
+            ]
+        )
 
         if len(events_data) == 10:
             break

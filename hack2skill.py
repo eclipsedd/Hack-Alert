@@ -15,7 +15,7 @@ def hack2skill_extractor(r_path, base_url):
         event = []
 
         name = block.find("h6").get_text(strip=True)
-        event.append(name)
+        event.append("*" + name + "*")
 
         description = block.find("p", class_="hack-description").get_text(strip=True)
         event.append(description)
@@ -34,7 +34,7 @@ def hack2skill_extractor(r_path, base_url):
         event.append("*" + dat_name + ":* " + last_date)
         mode_text = block.find("p", class_="hack-type").get_text(strip=True)
         mmode = str(mode_text).split(":")
-        event.append(mmode[1])
+        event.append("*Mode:* " + mmode[1])
 
         link = block.find("a", class_="text-link")["href"]
         event.append(link)

@@ -71,21 +71,14 @@ def devpost_extractor():
                     By.CSS_SELECTOR, "a.flex-row.tile-anchor"
                 ).get_attribute("href")
                 title = elem.find_element(By.CSS_SELECTOR, "h3").text
-                status = (
-                    "status: "
-                    + elem.find_element(
-                        By.CSS_SELECTOR, "div.round.label.status-label"
-                    ).text
-                )
 
-                mode = (
-                    "mode: " + elem.find_element(By.CSS_SELECTOR, "div.info span").text
-                )
+                status = elem.find_element(
+                    By.CSS_SELECTOR, "div.round.label.status-label"
+                ).text
 
-                host_name = (
-                    "host: "
-                    + elem.find_element(By.CSS_SELECTOR, "span.host-label").text
-                )
+                mode = elem.find_element(By.CSS_SELECTOR, "div.info span").text
+
+                host_name = elem.find_element(By.CSS_SELECTOR, "span.host-label").text
 
                 duration = elem.find_element(
                     By.CSS_SELECTOR, "div.submission-period"
@@ -107,15 +100,15 @@ def devpost_extractor():
                 theme = ""
                 for i in themes:
                     theme += ", " + i.text
-                theme = "themes: " + theme[1:]
+                theme = theme[2:]
 
                 event = [
-                    title,
-                    mode,
-                    status,
+                    "*" + title + "*",
                     theme,
-                    host_name,
-                    "dates: " + duration,
+                    "*Host:* " + host_name,
+                    "*Status:* " + status,
+                    "*Dates:* " + duration,
+                    "*Mode/Loc:* " + mode,
                     link,
                 ]
                 events.append(event)

@@ -33,7 +33,7 @@ def devfolio_extractor():
     driver.get("https://devfolio.co/hackathons/open")
 
     try:
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 40).until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "div[class*='CompactHackathonCard__StyledCard']"),
             )
@@ -48,10 +48,32 @@ def devfolio_extractor():
         for card in cards:
             name_element = card.find_element(By.TAG_NAME, "h3")
             name = name_element.text.strip()
+
             link_element = name_element.find_element(By.XPATH, "./ancestor::a")
             link = link_element.get_attribute("href")
 
-            hackathon_data.append([name, link])
+            theme = card.find_element(
+                By.XPATH, ".//p[text()='Theme']/following-sibling::div//p"
+            ).text.strip()
+
+            mode = card.find_element(
+                By.XPATH,
+                ".//p[contains(@class, 'cqgLqK') and text()='Online' or text()='Offline']",
+            ).text.strip()
+
+            start_date = card.find_element(
+                By.XPATH, ".//p[contains(text(), 'Starts')]"
+            ).text
+
+            hackathon_data.append(
+                [
+                    "*" + name + "*",
+                    "*Theme:* " + theme,
+                    "*Starts:* " + start_date[-8:],
+                    "*Mode:* " + mode,
+                    link,
+                ]
+            )
 
         return hackathon_data
 
@@ -65,6 +87,10 @@ def devfolio_extractor():
 
 # hackathons = devfolio_extractor()
 # print(f"\nNo. of hackathons: {len(hackathons)}")
-# for hackathon in hackathons:
-#     print(f"\nName: {hackathon[0]}")
-#     print(f"Link: {hackathon[1]}")
+# for i in hackathons:
+#     print(i[0])
+#     print(i[1])
+#     print(i[2])
+#     print(i[3])
+#     print(i[4])
+#     print()

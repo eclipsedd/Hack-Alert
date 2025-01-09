@@ -95,7 +95,9 @@ def dorahacks_extractor():
                     By.XPATH,
                     ".//div[@class='inline-block text-accent-primary bg-accent-bg text-xs px-1 py-0.5 rounded me-2']",
                 )
-                tags = ", ".join([tag.text for tag in tags_elements])
+                tags = ", ".join(
+                    [tag.text.strip() for tag in tags_elements if tag.text.strip()]
+                )
 
                 prize_pool = card.find_element(
                     By.XPATH,
@@ -104,12 +106,12 @@ def dorahacks_extractor():
 
                 hackathon_data.append(
                     [
-                        name,
-                        organiser,
-                        mode,
-                        tags,
-                        prize_pool,
-                        status,
+                        "*" + name + "*",
+                        "*Tags:* " + tags,
+                        "*Host:* " + organiser,
+                        "*Status:* " + status,
+                        "*Mode:* " + mode,
+                        "*Prize pool:* " + prize_pool,
                         link,
                     ]
                 )
@@ -127,11 +129,11 @@ def dorahacks_extractor():
 # events = dorahacks_extractor()
 # print(f"Number of hackathons: {len(events)}")
 # for i in events:
-#     print("Name:", i[0])
-#     print("Organiser:", i[1])
-#     print("Mode:", i[2])
-#     print("Tags:", i[3])
-#     print("Prize Pool:", i[4])
-#     print("Status:", i[5])
-#     print("Link:", i[6])
+#     print(i[0])
+#     print(i[1])
+#     print(i[2])
+#     print(i[3])
+#     print(i[4])
+#     print(i[5])
+#     print(i[6])
 #     print()

@@ -108,7 +108,7 @@ def devpost_send():
 
     new_events = []
     for event in events:
-        title, duration = event[0], event[5][7:]
+        title, duration = event[0], event[4][9:]
         if title in tracked_events and tracked_events[title] == duration:
             continue
         new_events.append(event)
@@ -134,7 +134,7 @@ def devpost_send():
             continue
 
     for i in new_events:
-        updated_tracked_events[i[0]] = i[5][7:]
+        updated_tracked_events[i[0]] = i[4][9:]
     save_devpost(updated_tracked_events)
 
 
